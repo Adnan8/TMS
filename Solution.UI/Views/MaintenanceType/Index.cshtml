@@ -1,0 +1,104 @@
+﻿@{
+    ViewData["Title"] = "Maintenance Type List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="card">
+    <header class="card-header">
+        <div class="card-actions">
+            <a href="@Url.Action("Create", "MaintenanceType")" class="btn btn-primary" title="Add New Maintenance Type">
+                <i class="bi bi-plus-lg"></i> 
+            </a>
+        </div>
+        <h4 class="card-title">Maintenance Types</h4>
+    </header>
+    <div class="card-body">
+        <table class="table table-bordered table-hover" id="datatable-maintenance-type">
+            <thead class="table-light">
+                <tr>
+                    <th>Type Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</section>
+<script>
+    $(document).ready(function () {
+        loadMaintenanceTypes();
+    });
+
+    function loadMaintenanceTypes() {
+        if ($.fn.dataTable.isDataTable("#datatable-maintenance-type")) {
+            $("#datatable-maintenance-type").DataTable().clear().destroy();
+        }
+
+        $("#datatable-maintenance-type").DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            ajax: {
+                url: "/MaintenanceType/GetAllMaintenanceTypes",
+                type: "GET",
+                dataType: 'json',
+                data: function (d) {
+                    return {
+                        draw: d.draw,
+                        start: d.start,
+                        length: d.length,
+                        searchValue: d.search.value
+                    };
+                }
+            },
+            columns: [
+                {
+                    data: "typeName",
+                    name: "Type Name",
+                    autoWidth: true,
+                },
+                {
+                    orderable: false,
+                    className: 'actions-column',
+                    render: function (data, type, row) {
+                        return `
+                                <a href="/MaintenanceType/Edit/${row.maintenanceTypeID}" class="btn btn-primary btn-sm" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                                <a href="javascript:void(0);" onclick="confirmDelete('${row.maintenanceTypeID}')" class="btn btn-danger btn-sm" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>`;
+                    }
+                }
+            ]
+        });
+    }
+
+    function confirmDelete(id) {
+        const isConfirmed = confirm("Are you sure you want to delete this maintenance type?");
+        if (isConfirmed) {
+            deleteMaintenanceType(id);
+        }
+    }
+
+   function deleteMaintenanceType(typeId) {
+    $.ajax({
+        url: '/MaintenanceType/Delete',
+        type: 'POST',
+        data: { id: typeId },
+        success: function (result) {
+            if (result.success) {
+                alert("Maintenance type deleted successfully!");
+                $('#datatable-maintenance-type').DataTable().ajax.reload();
+            } else {
+                alert(result.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            alert("Error occurred: " + error);
+        }
+    });
+}
+
+</script>

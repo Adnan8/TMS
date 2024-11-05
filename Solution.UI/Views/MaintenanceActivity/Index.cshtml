@@ -1,0 +1,114 @@
+﻿@{
+    ViewData["Title"] = "Maintenance Activities";
+}
+
+<section class="card">
+    <header class="card-header">
+        <div class="card-actions">
+            <a href="@Url.Action("Create", "MaintenanceActivity")" class="btn btn-primary btn-square" title="Add">
+                <i class="bi bi-plus-lg"></i>
+            </a>
+        </div>
+        <h4 class="card-title">Maintenance Activities</h4>
+    </header>
+    <div class="card-body">
+        <table class="table table-bordered table-striped mb-0" id="datatable-maintenance-activity">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Vehicle License</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<script>
+$(document).ready(function () {
+    loadMaintenanceActivities();
+});
+
+function loadMaintenanceActivities() {
+    if ($.fn.dataTable.isDataTable("#datatable-maintenance-activity")) {
+        $("#datatable-maintenance-activity").DataTable().clear().destroy();
+    }
+
+    $("#datatable-maintenance-activity").DataTable({
+        processing: true,
+        serverSide: true,
+        responsive: true,
+        ajax: {
+            url: "/MaintenanceActivity/GetAllMaintenanceActivities",
+            type: "GET",
+            contentType: "application/json",
+            dataType: "json",
+            data: function (d) {
+                return {
+                    draw: d.draw,
+                    start: d.start,
+                    length: d.length,
+                    searchValue: d.search.value
+                };
+            },
+            dataSrc: function (json) {
+                console.log(json); 
+                return json.data;
+            },
+            error: function (xhr, status, error) {
+                console.error('AJAX error:', xhr.status, xhr.responseText);
+                alert('Error: ' + xhr.responseText);
+            }
+        },
+        columns: [
+            { data: "description", title: "Description" ,autoWidth: true,},
+            { data: "maintenanceTypeName", title: "Type",autoWidth: true, },
+            { data: "vehicleLicenseNumber", title: "Vehicle License",autoWidth: true, },
+            { data: "date", title: "Date",autoWidth: true, },  
+            {
+                    orderable: false,
+                    className: 'actions-column',
+                    render: function (data, type, row) {
+                        return `
+                                <a href="/MaintenanceActivity/Edit/${row.maintenanceID}" class="btn btn-primary btn-sm" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                                <a href="javascript:void(0);" onclick="confirmDelete('${row.maintenanceID}')" class="btn btn-danger btn-sm" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>`;
+                    }
+                }
+        ]
+    });
+}
+
+function confirmDelete(id) {
+    const isConfirmed = confirm("Are you sure you want to delete?");
+    if (isConfirmed) {
+        deleteMaintenanceActivity(id);
+    }
+}
+
+function deleteMaintenanceActivity(id) {
+    $.ajax({
+        url: '/MaintenanceActivity/Delete',
+        type: 'POST',
+        data: { id: id },
+        success: function (result) {
+            if (result.success) {
+                alert(result.message);
+                $('#datatable-maintenance-activity').DataTable().ajax.reload();
+            } else {
+                alert(result.message);
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert("Error occurred: " + thrownError);
+        }
+    });
+}
+</script>
