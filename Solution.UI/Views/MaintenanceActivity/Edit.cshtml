@@ -1,0 +1,67 @@
+﻿@model MaintenanceActivity
+
+@{
+    ViewData["Title"] = "Edit Maintenance Activity";
+}
+<div class="container d-flex justify-content-center mt-5">
+    <div class="col-8">
+        <section class="card">
+            <header class="card-header">
+
+                <h4 class="card-title">Edit</h4>
+            </header>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input asp-for="MaintenanceID" type="hidden" />
+
+                    <div class="form-group">
+                        <label asp-for="VehicleID">Vehicle <span class="text-danger">*</span></label>
+                        <select asp-for="VehicleID" asp-items="ViewBag.Vehicles" class="form-control">
+                            <option value="">Select a vehicle...</option>
+                        </select>
+                        <span asp-validation-for="VehicleID" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="MaintenanceTypeID">Maintenance Type <span class="text-danger">*</span></label>
+                        <select asp-for="MaintenanceTypeID" asp-items="ViewBag.MaintenanceTypes" class="form-control">
+                            <option value="">Select a maintenance type...</option>
+                        </select>
+                        <span asp-validation-for="MaintenanceTypeID" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Description">Description <span class="text-danger">*</span></label>
+                        <input asp-for="Description" class="form-control" />
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Date">Date <span class="text-danger">*</span></label>
+                        <input asp-for="Date" type="date" class="form-control" />
+                        <span asp-validation-for="Date" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Notes">Notes <span class="text-danger">*</span></label>
+                        <input asp-for="Notes" class="form-control" />
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="submit" class="btn btn-primary me-2">Save</button>
+                        <a asp-action="Index" asp-controller="MaintenanceActivity" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+
+            </div>
+        </section>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
